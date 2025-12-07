@@ -1,6 +1,6 @@
 #include <iostream>
 #include <thread>
-#include <vector>
+#include <vector
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -30,3 +30,4 @@ public:
         cv.notify_one();
     }
 };
+
