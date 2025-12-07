@@ -47,7 +47,86 @@ Here’s what your `main.cpp` does:
 #include <functional>
 using namespace std;
 
-// [Semaphore and ThreadPool class definitions here, as provided above]
+
+class Semaphore {
+private:
+    mutex mtx;
+    condition_variable cv;
+    int count;
+
+public:
+    Semaphore(int c = 0) : count(c) {}
+
+    void acquire() {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [&]() { return count > 0; });
+        count--;
+    }
+
+    void release() {
+        unique_lock<mutex> lock(mtx);
+        count++;
+        cv.notify_one();
+    }
+};
+
+
+class ThreadPool {
+private:
+    vector<thread> workers;
+    queue<function<void()>> tasks;
+
+    mutex qlock;
+    condition_variable cv;
+    bool stop = false;
+
+public:
+
+    ThreadPool(int nThreads) {
+        for (int i = 0; i < nThreads; i++) {
+            workers.emplace_back([this]() { workerThread(); });
+        }
+    }
+
+    void workerThread() {
+        while (true) {
+            function<void()> task;
+
+            {   // Acquire lock
+                unique_lock<mutex> lock(qlock);
+
+                cv.wait(lock, [&]() { return stop || !tasks.empty(); });
+
+                if (stop && tasks.empty()) return;
+
+                task = tasks.front();
+                tasks.pop();
+            }
+
+            task(); // Execute task
+        }
+    }
+
+    void addTask(function<void()> f) {
+        {
+            lock_guard<mutex> lock(qlock);
+            tasks.push(f);
+        }
+        cv.notify_one();
+    }
+
+    void shutdown() {
+        {
+            lock_guard<mutex> lock(qlock);
+            stop = true;
+        }
+
+        cv.notify_all();
+        for (auto &t : workers)
+            if (t.joinable()) t.join();
+    }
+};
+
 
 void exampleTask(int id) {
     cout << "Thread running task: " << id << "\n";
@@ -55,6 +134,7 @@ void exampleTask(int id) {
 }
 
 int main() {
+
     ThreadPool pool(4);        // 4 worker threads
 
     for (int i = 1; i <= 50; i++) {
@@ -67,6 +147,8 @@ int main() {
 
     cout << "All tasks completed!\n";
     return 0;
+}
+
 }
 ```
 
