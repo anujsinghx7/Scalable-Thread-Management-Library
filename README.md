@@ -166,9 +166,12 @@ All tasks completed!
 
 MIT License. See [LICENSE](LICENSE) for details.
 
-## Contribution
+## Contributors:
 
-Pull requests and suggestions are welcome!
+- Anuj Kumar Singh
+- Shivam Srivastava
+- Apoorva Sharma
+- Eekshith Gangisetty
 
 ## Support
 
