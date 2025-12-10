@@ -48,6 +48,25 @@ public:
         }
     }
 
+void workerThread() {
+        while (true) {
+            function<void()> task;
+
+            {   // Acquire lock
+                unique_lock<mutex> lock(qlock);
+
+                cv.wait(lock, [&]() { return stop || !tasks.empty(); });
+
+                if (stop && tasks.empty()) return;
+
+                task = tasks.front();
+                tasks.pop();
+            }
+
+            task(); 
+        }
+    }
+
 
 
 
