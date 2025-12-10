@@ -31,4 +31,23 @@ public:
     }
 };
 
+class ThreadPool {
+private:
+    vector<thread> workers;
+    queue<function<void()>> tasks;
+
+    mutex qlock;
+    condition_variable cv;
+    bool stop = false;
+
+public:
+
+    ThreadPool(int nThreads) {
+        for (int i = 0; i < nThreads; i++) {
+            workers.emplace_back([this]() { workerThread(); });
+        }
+    }
+
+
+
 
