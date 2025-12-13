@@ -68,6 +68,19 @@ void workerThread() {
     }
 
 
+void exampleTask(int id) {
+    {
+        lock_guard<mutex> lock(coutLock);
+        cout << "[START] Task " << id << " running\n";
+    }
+
+    this_thread::sleep_for(chrono::milliseconds(300)); 
+
+    {
+        lock_guard<mutex> lock(coutLock);
+        cout << "[END]   Task " << id << " finished\n";
+    }
+}
 
 
 
