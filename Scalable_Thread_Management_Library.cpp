@@ -82,5 +82,20 @@ void exampleTask(int id) {
     }
 }
 
+int main() {
+
+    ThreadPool pool(4);        
+
+    for (int i = 1; i <= 50; i++) {
+        pool.addTask([i]() {
+            exampleTask(i);
+        });
+    }
+
+    pool.shutdown();
+
+    cout << "All tasks completed!\n";
+    return 0;
+}
 
 
